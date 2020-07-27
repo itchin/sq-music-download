@@ -39,7 +39,7 @@ func main() {
     searchMusic(ctx, musicName)
     ml := searchResultList(ctx, ch)
 
-    linkUrl, quantity := selectMusic(ml)
+    m := selectMusic(ml)
 
     ctx, cancel = chromedp.NewContext(context.Background())
     defer cancel()
@@ -48,13 +48,13 @@ func main() {
     //quantity := "HQ"
 
     ch = addNewTabListener(ctx)
-    openPlayerTag(ctx, linkUrl)
+    openPlayerTag(ctx, m.LinkUrl)
 
-    musicUrl := playMusic(ctx, ch, quantity)
+    musicUrl := playMusic(ctx, ch, m.Quality)
 
     //ioutil.WriteFile("migu.txt", []byte(res), 0666)
     musicUrl = musicSrc(musicUrl)
-    downlaodMusic(musicUrl)
+    downlaodMusic(m, musicUrl)
     fmt.Println("下载完成，按回车键退出...")
     fmt.Scanln(&musicUrl)
 }
@@ -62,15 +62,15 @@ func main() {
 /**
  * 下载歌曲
  */
-func downlaodMusic(musicUrl string) {
+func downlaodMusic(m *model.Music, musicUrl string) {
     //musicUrl := "https://freetyst.nf.migu.cn/public/product12/2018/07/10/%E6%97%A0%E6%8D%9F/2017%E5%B9%B412%E6%9C%8822%E6%97%A516%E7%82%B934%E5%88%86%E5%86%85%E5%AE%B9%E5%87%86%E5%85%A5%E4%B8%AD%E5%94%B1%E8%89%BA%E8%83%BD%E9%A2%84%E7%95%99454%E9%A6%96/flac/%E5%8C%97%E4%BA%AC%E6%AC%A2%E8%BF%8E%E4%BD%A0-%E5%88%98%E7%B4%AB%E7%8E%B2.flac"
     // url解码
     musicUrl, err := url.QueryUnescape(musicUrl)
     if err != nil {
         panic(err)
     }
-    index := strings.LastIndex(musicUrl, "/")
-    musicName := musicUrl[index + 1:]
+    musicName := getName(m, musicUrl)
+
     resp, err := http.Get(musicUrl)
     if err != nil {
         panic(err)
@@ -124,10 +124,28 @@ func downlaodMusic(musicUrl string) {
     //fmt.Println("size:", size)
 }
 
+func getName(m *model.Music, musicUrl string) string {
+    index := strings.LastIndex(musicUrl, "/")
+    musicName := musicUrl[index + 1:]
+
+    index = strings.LastIndex(musicName, ".")
+    suffix := musicName[index:]
+    spark := m.Title + "_" + m.Singer + suffix
+
+    var op string
+    fmt.Println(fmt.Sprintf("歌曲原名为：%s，是否修改为：%s?(y/n，不输入则默认为y)：", musicName, spark))
+    fmt.Scanln(&op)
+
+    if op == "n" {
+        return musicName
+    }
+    return spark
+}
+
 /**
  * 打印输出结果
  */
-func selectMusic(ml []*model.Music) (string, string) {
+func selectMusic(ml []*model.Music) *model.Music {
     //打印出歌曲列表
     fmt.Println("序号\t歌曲\t音质\t歌手\t专辑")
     i := 1
@@ -146,7 +164,8 @@ func selectMusic(ml []*model.Music) (string, string) {
     }
 
     m := ml[number - 1]
-    return "https://music.migu.cn" + m.LinkUrl, m.Quality
+    m.LinkUrl = "https://music.migu.cn" + m.LinkUrl
+    return m
 }
 
 /**
@@ -243,8 +262,13 @@ func playMusic(ctx context.Context, ch <-chan target.ID, quantity string) string
     newCtx, cancel := chromedp.NewContext(ctx, chromedp.WithTargetID(<-ch))
     defer cancel()
 
-    if quantity == "3D" {
+    switch quantity {
+    case "3D":
         quantity = "D3"
+    case "24BIT":
+        quantity = "BIT24"
+    case "16BIT":
+        quantity = "BIT16"
     }
     var style,musicUrl string
     // 检查是否只有一种音质
