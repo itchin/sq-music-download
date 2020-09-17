@@ -174,7 +174,6 @@ func selectMusic(ml []*model.Music) *model.Music {
 func searchMusic(ctx context.Context, musicName string)  {
     err := chromedp.Run(ctx,
         chromedp.Navigate("https://music.migu.cn/v3/music/player/audio"),
-        chromedp.WaitVisible("#search_ipt", chromedp.ByID),
         chromedp.SetValue("#search_ipt", musicName, chromedp.ByID),
         chromedp.Click(`i[class="iconfont cf-nav-sousuo"]`, chromedp.BySearch),
     )
@@ -247,7 +246,6 @@ func addNewTabListener(ctx context.Context) <-chan target.ID {
 func openPlayerTag(ctx context.Context, url string)  {
     err := chromedp.Run(ctx,
         chromedp.Navigate(url),
-        chromedp.WaitVisible(`#is_songPlay`, chromedp.ByID),
         chromedp.Click("#is_songPlay", chromedp.ByID),
     )
     if err != nil {
@@ -288,9 +286,7 @@ func playMusic(ctx context.Context, ch <-chan target.ID, quantity string) string
     if style == "" {
         err = chromedp.Run(newCtx,
             chromedp.Click(`i[class="iconfont cf-shang"]`, chromedp.BySearch),              //点击，选择音质
-            chromedp.WaitVisible(`i[class="iconfont cf-shang active"]`, chromedp.BySearch),//等待音质列表加载完成
             chromedp.Click(`span[class="` + quantity + `-rate"]`, chromedp.BySearch),        //点击，选择无损音质
-            chromedp.WaitVisible(`b[class="` + quantity + `"]`, chromedp.BySearch),
             chromedp.OuterHTML("#migu_audio", &musicUrl, chromedp.ByID),
         )
         if err != nil {
