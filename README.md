@@ -2,7 +2,7 @@
 无损音乐下载
 
 # 安装
-安装golang开发环境，之后：
+安装golang开发环境后
 ```
 git clone https://github.com/itchin/sq-music-download
 cd sq-music-download
