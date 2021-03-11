@@ -2,16 +2,18 @@
 无损音乐下载
 
 # 安装
-windows用户可直接通过右侧Realeases下载exe文件
+可通过右侧Realeases下载可执行文件
 
-若需要自行编译安装，需先安装golang开发环境，并配置goproxy环境变量
+https://github.com/itchin/sq-music-download/releases
+
+若需要自行编译安装，请先安装golang开发环境，并配置goproxy环境变量
 ```
 # 下载项目
 git clone https://github.com/itchin/sq-music-download
 
 cd sq-music-download
 # 下载第三方包
-go mod tidy
+go mod vendor
 # 启动项目
 go run main.go
 ```
