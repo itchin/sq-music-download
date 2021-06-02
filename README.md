@@ -1,5 +1,5 @@
 # sq-music-download
-无损音乐下载
+使用chromedp库实现的爬虫进行无损音乐下载
 
 # 安装
 可通过右侧Realeases下载可执行文件
