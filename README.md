@@ -2,7 +2,14 @@
 使用chromedp库实现的爬虫进行无损音乐下载
 
 # 安装
-可通过右侧Realeases下载可执行文件
+
+①
+
+需要先安装chrome浏览器
+
+②
+
+在右侧Realeases下载可执行文件
 
 https://github.com/itchin/sq-music-download/releases
 
